@@ -14,7 +14,7 @@
     <div id="app">
 
         <!-- TODO display the name of the activity -->
-        <h1 class="text-center">Time Tracker</h1>
+        <h1 class="text-center">{{ activity }}Time Tracker</h1>
 
         <div id="add-hours" class="card">
 
@@ -115,6 +115,22 @@
     <script>
 
     //   TODO create new Vue app here
+
+    let app = Vue.createApp({
+        data() {
+            return {
+                activity: 'Practice Programming',
+                activityRecords: [],
+                date: [],
+                hours: 1,
+                type: 'Writing',
+                language: 'Javascript'
+            }
+        }
+    })
+
+
+    app.mount('#app')
 
     </script>
 
