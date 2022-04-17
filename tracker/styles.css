@@ -2,3 +2,15 @@
     max-height: 250px;
     overflow: scroll;
 }
+
+.writing {
+    background-color: green;
+}
+
+.reading {
+    background-color: blue;
+}
+
+.debugging {
+    background-color: red;
+}

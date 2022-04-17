@@ -36,7 +36,6 @@
 
                 <div class="form-group">
                     <label class="form-label" for="hours">How many hours did you practice for?</label>
-                    <!-- TODO use v-model to connect this input to hours data -->
                     <input id="hours" class="form-control" type="number" min="0" max="24" v-model.number="hours">
                     <small id="hours-help" class="form-text text-muted">
                         Enter a number of hours, more than 0, up to a maximum of 24
@@ -64,6 +63,16 @@
                     <label class="form-check-label" for="media2">Python</label>
                 </div>
 
+                <div class="form-group">
+                    <label class="form-label" for="notes">Notes</label>
+                    <input id="notes" class="form-control" v-model.trim="notes">
+                </div>
+
+                <div class="form-check-inline">
+                    <input type="checkbox" id="complete" class="form-check-input" v-model="completed">
+                    <label class="form-label" for="complete">Completed?</label>
+                </div>
+
                 <div>
                     <button class="btn btn-primary mt-2" type="button" v-on:click="submit">Add record</button>
                 </div>
@@ -80,17 +89,21 @@
 
                 <div id="records">
                     <table class="table table-hover">
-                        <tr>
+                        <tr >
                             <th>Date</th>
                             <th>How many hours?</th>
                             <th>Type</th>
                             <th>Media</th>
+                            <th>Notes</th>
+                            <th>Completed</th>
                         </tr>
-                        <tr v-for="record in activityRecords">
-                            <td>{{ shortDate(record.date) }}</td>
+                        <tr v-for="record in activityRecords" v-bind:class=" { writing: types.writing, reading: types.reading, debugging: types.debugging }">
+                            <td>{{ record.date }}</td>
                             <td>{{ record.hours }}</td>
                             <td>{{ record.type }}</td>
                             <td>{{ record.language }}</td>
+                            <td>{{ record.notes }}</td>
+                            <td>{{ record.completed }}</td>
                         </tr>
                     </table>
                 </div>
@@ -105,8 +118,6 @@
 
                 <p>You have practiced a total of {{ totalHours }} hours</p>
 
-                <!-- Challenge question! Display a list of the total hours for each type.  -->
-          
             </div>
         </div>
 
@@ -114,84 +125,85 @@
 
     <script>
 
-    //   TODO create new Vue app here
+        let app = Vue.createApp({
+            data() {
+                return {
+                    activity: 'Practice Programming',
+                    activityRecords: [],
+                    dateString: [],
+                    hours: 1,
+                    type: 'Writing',
+                    language: 'Javascript',
+                    notes: '',
+                    completed: false,
 
-    let app = Vue.createApp({
-        data() {
-            return {
-                activity: 'Practice Programming',
-                activityRecords: [],
-                dateString: [],
-                hours: 1,
-                type: 'Writing',
-                language: 'Javascript',
+                    types: ['Writing', 'Reading', 'Debugging'],
 
-                types: ['Writing', 'Reading', 'Debugging'],
-
-                errors: []
-            }
-        },
-        methods: {
-            submit() {
-                this.errors = []
-
-                let date = new Date(this.dateString)
-
-                if (!this.dateString || this.dateString === 'Invalid Date' || date > new Date() ) {
-                    this.errors.push('Select a valid date, today or in the past.')
+                    errors: []
                 }
+            },
+            methods: {
+                submit() {
+                    this.errors = []
 
-                if (this.hours <= 0 || this.hours >24) {
-                    this.errors.push('The number of hours must be greater than 0 and less than 25')
-                }
+                    let date = new Date(this.dateString)
 
-                if (!this.type) {
-                    this.errors.push('Select a type')
-                }
-
-                if (!this.language) {
-                    this.errors.push('Select a language')
-                }
-
-                if (this.errors.length === 0) {
-                    let record = {
-                        date: date,
-                        hours: this.hours,
-                        type: this.type,
-                        language: this.language
+                    if (!this.dateString || this.dateString === 'Invalid Date' || date > new Date() ) {
+                        this.errors.push('Select a valid date, today or in the past.')
                     }
 
-                    this.activityRecords.push(record)
+                    if (this.hours <= 0 || this.hours >24) {
+                        this.errors.push('The number of hours must be greater than 0 and less than 25')
+                    }
 
-                    this.activityRecords.sort(function(r1, r2) {
-                        return r1.date.getTime() - r2.date.getTime()
+                    if (!this.type) {
+                        this.errors.push('Select a type')
+                    }
+
+                    if (!this.language) {
+                        this.errors.push('Select a language')
+                    }
+
+                    if (this.errors.length === 0) {
+                        let record = {
+                            date: date,
+                            hours: this.hours,
+                            type: this.type,
+                            language: this.language,
+                            notes: this.notes
+                        }
+
+                        this.activityRecords.push(record)
+
+                        this.activityRecords.sort(function(r1, r2) {
+                            return r1.date.getTime() - r2.date.getTime()
+                        })
+                    }
+                }
+                //shortDate(date) {
+                    //return new Intl.DateTimeFormat('en-US', {timeZone: 'UTC'}).format(date)
+                // }
+            },
+            computed: {
+                totalRecordsMessage() {
+                    if (this.activityRecords.length === 1) {
+                        return '1 record'
+                    } else {
+                        return this.activityRecords.length + ' records'
+                    }
+                },
+                totalHours() {
+                    let total = 0
+                    this.activityRecords.forEach(function(record) {
+                        total = total + record.hours
                     })
+                    return total
                 }
-            },
-            shortDate(date) {
-                return new Intl.DateTimeFormat('en-US', {timeZone: 'UTC'}).format(date)
             }
-        },
-        computed: {
-            totalRecordsMessage() {
-                if (this.activityRecords.length === 1) {
-                    return '1 record'
-                } else {
-                    return this.activityRecords.length + ' records'
-                }
-            },
-            totalHours() {
-                let total = 0
-                this.activityRecords.forEach(function(record) {
-                    total = total + record.hours
-                })
-                return total
-            }
-        }
-    })
+        })
 
 
-    app.mount('#app')
+        app.mount('#app')
 
     </script>
 
